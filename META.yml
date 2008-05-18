@@ -1,0 +1,35 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         SQL-Entity
+version:      0.01
+license: perl
+version_from: lib/SQL/Entity.pm
+installdirs:  site
+requires:
+    Abstract::Meta::Class:                    0
+    Storable:                                 0
+
+distribution_type: module
+tests: t/*.t t/*/*.t
+provides:
+SQL::Entity:
+  file: lib/SQL/Entity.pm
+SQL::Entity::Column:
+  file: lib/SQL/Entity/Column.pm
+SQL::Entity::Relationship:
+  file: lib/SQL/Entity/Relationship.pm
+SQL::Entity::Index:
+  file: lib/SQL/Entity/Index.pm
+SQL::Entity::Table:
+  file: lib/SQL/Entity/Table.pm
+SQL::Entity::Condition:
+  file: lib/SQL/Entity/Condition.pm
+SQL::Query:
+  file: lib/SQL/Query.pm
+SQL::Query::Limit::PostgreSQL:
+  file: lib/SQL/Query/Limit/PostgreSQL.pm
+SQL::Query::Limit::Oracle:
+  file: lib/SQL/Query/Limit/Oracle.pm
+SQL::Query::Limit::MySQL:
+  file: lib/SQL/Query/Limit/MySQL.pm
+generated_by: ExtUtils::MakeMaker version 6.30

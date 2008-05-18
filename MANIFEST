@@ -1,0 +1,22 @@
+Changes
+lib/SQL/Entity.pm
+lib/SQL/Entity/Column.pm
+lib/SQL/Entity/Relationship.pm
+lib/SQL/Entity/Index.pm
+lib/SQL/Entity/Table.pm
+lib/SQL/Entity/Condition.pm
+lib/SQL/Query/Limit/PostgreSQL.pm
+lib/SQL/Query/Limit/Oracle.pm
+lib/SQL/Query/Limit/MySQL.pm
+lib/SQL/Query.pm
+Makefile.PL
+MANIFEST
+README
+t/entity/column.t
+t/entity/table.t
+t/entity/index.t
+t/entity/condition.t
+t/entity/to_many.t
+t/query.t
+t/entity.t
+META.yml                                 Module meta-data (added by MakeMaker)
