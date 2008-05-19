@@ -128,11 +128,24 @@ sub join_condition {
         ? $join_condition->and($condition)
         : $condition || $join_condition;
     $condition = $entity_condition ? $condition->and($entity_condition) : $condition;
+    $condition;
+}
+
+
+
+=item join_condition_as_string
+
+Return SQL condition fragment.
+
+=cut
+
+sub join_condition_as_string {
+    my ($self, $entity, $bind_variables, $entity_condition) = @_;
+    my $condition = $self->join_condition($entity, $bind_variables, $entity_condition);
     my $target_entity = $self->target_entity;
     my %query_columns = $entity->query_columns;
     $condition->as_string(\%query_columns, $bind_variables, $entity);
 }
-
 
 
 =item join_columns_values

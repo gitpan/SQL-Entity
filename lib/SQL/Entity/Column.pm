@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw(@EXPORT_OK %EXPORT_TAGS $VERSION);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 use Abstract::Meta::Class ':all';
 use base 'Exporter';
@@ -170,7 +170,8 @@ sub subquery_to_string {
     my $relationship = $self->entity->to_one_relationship($table_id);
     my $join_method = $join_methods->{$table_id};
     unless ($join_method) {
-        my ($sql, $bind_variable) = $table->query([$id], $relationship->condition);
+        #enforce subquery
+        my ($sql, $bind_variable) = $table->query([$id], $relationship->join_condition($self->entity), undef, {$source->id => 'SUBQUERY'});
         
         return "($sql) AS $id";
     } else {

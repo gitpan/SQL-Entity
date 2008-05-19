@@ -288,6 +288,7 @@ sub set_relationship_join_method {
     my ($self, $column, $method, $join_methods) = @_;
     my $table = $column->table;
     if ($table && $table ne $self) {
+        return if $join_methods->{$table->id};
         $join_methods->{$table->id} = $method;
     }
 }
@@ -535,7 +536,7 @@ sub join_clause {
         my %query_columns = $target_entity->query_columns;
         $result .= "\n${join_method} "
         . $target_entity->from_clause_params($join_methods)
-        . " ON (" . $relation->join_condition($self) . ")";
+        . " ON (" . $relation->join_condition_as_string($self) . ")";
         
     }
     $result;
@@ -557,7 +558,7 @@ sub relationship_query {
     my $condition = $self->condition_converter(@args);
     $sql .= "\nWHERE EXISTS (SELECT 1 FROM "
         . $self->from_sql_clause
-        . " WHERE " . $relationship->join_condition($self, $bind_variables, $condition) .")"
+        . " WHERE " . $relationship->join_condition_as_string($self, $bind_variables, $condition) .")"
         . $relationship->order_by_clause;
     ($sql, $bind_variables);
 }

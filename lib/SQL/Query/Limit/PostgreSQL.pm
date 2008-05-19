@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 use Abstract::Meta::Class ':all';
 use SQL::Entity::Column ':all';
@@ -13,7 +13,7 @@ use base 'SQL::Entity';
 
 =head1 NAME
 
-SQL::Query::Limit::PostgreSQL- LIMIT emulation for PostgreSQL database.
+SQL::Query::Limit::PostgreSQL - LIMIT emulation for PostgreSQL database.
 
 =cut  
 
