@@ -5,11 +5,12 @@ use strict;
 use vars qw(@EXPORT_OK %EXPORT_TAGS $VERSION);
 use Storable qw(dclone);
 
-$VERSION = 0.01;
+$VERSION = 0.04;
 
 use Abstract::Meta::Class ':all';
 use Carp 'confess';
 use SQL::Entity::Column ':all';
+use SQL::Entity::Column::LOB ':all';
 use SQL::Entity::Condition ':all';
 use SQL::Entity::Index ':all';
 use SQL::Entity::Relationship ':all';
@@ -21,6 +22,7 @@ use constant THE_ROWID  => 'the_rowid';
 @EXPORT_OK = qw(
   sql_relationship
   sql_column
+  sql_lob
   sql_index
   sql_cond
   sql_and
@@ -94,7 +96,7 @@ SQL::Entity - Entity sql abstraction layer.
 
     my $emp = SQL::Entity->new(
         name                  => 'emp',
-        primary_key	      => ['empno'],
+        primary_key           => ['empno'],
         unique_expression     => 'rowid',
         columns               => [
             sql_column(name => 'ename'),
@@ -110,7 +112,6 @@ SQL::Entity - Entity sql abstraction layer.
         # or join_columns => ['deptno'],
     ));
 
-
     $emp->add_subquery_columns($dept->column('dname'));
 
 
@@ -121,6 +122,7 @@ This class uses entity meta definition to generate different kinds of sql statme
 =head2 EXPORT
 
   sql_column
+  sql_lob   
   sql_index
   sql_cond
   sql_and
@@ -219,15 +221,12 @@ has '%.to_many_relationships' => (
 
 Allows use mini language variable,
 
-SELECT t.* FROM
-(SELECT t.* FROM tab t WHERE t.col1 = [% var1 %]) t
+    SELECT t.* FROM
+    (SELECT t.* FROM tab t WHERE t.col1 = [% var1 %]) t
 
 =cut
 
 has '%.sql_template_parameters' => (item_accessor => 'sql_template_parameter');
-
-
-=cut
 
 =back
 
@@ -280,7 +279,9 @@ sub initialise_unique_row_column {
 
 
 
-=item set_join_methods
+=item set_relationship_join_method
+
+Sets join methods
 
 =cut
 
@@ -387,6 +388,7 @@ sub update {
         $field_values{$name} = $fields_values->{$name};
     }
     my @fields = sort keys %field_values;
+    return () unless @fields;
     my $condition = ref($conditions) eq 'SQL::Entity::Condition'
         ? $conditions
         : SQL::Entity::Condition->struct_to_condition($self->normalise_field_names(%$conditions));
@@ -609,7 +611,7 @@ sub query_columns {
 }
 
 
-=item _condition_converter
+=item condition_converter
 
 Converts passed in argumets to condition object
 

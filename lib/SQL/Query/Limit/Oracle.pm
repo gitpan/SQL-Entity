@@ -78,7 +78,7 @@ sub limit_clause {
 }
 
     
-=item query_columns
+=item selectable_columns
 
 =cut
 

@@ -58,7 +58,15 @@ has '$.the_rownum';
         find_sequence => "SELECT 1 AS has_seq FROM pg_class JOIN  pg_authid ON pg_class.relowner = pg_authid.oid
         WHERE pg_class.relkind = 'S' AND pg_class.relname = ? AND pg_authid.rolname = ?",
     );
-    
+
+
+=item sql_defintion
+
+Retuns sql defintion.
+Takes sql statement name.
+
+=cut
+
     sub sql_defintion {
         my ($self, $name) = @_;
         $SQL{$name};

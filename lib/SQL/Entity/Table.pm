@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = 0.01;
+$VERSION = 0.02;
 
 use Abstract::Meta::Class ':all';
 use Carp 'confess';
@@ -72,7 +72,6 @@ all - exports sql_column method
 has '$.name';
 
 
-
 =item schema
 
 Table schema name
@@ -82,28 +81,39 @@ Table schema name
 has '$.schema';
 
 
-
-=item primary_key 
+=item primary_key
 
 =cut
 
 has '@.primary_key';
 
 
-=item alias 
+=item alias
 
 =cut
 
 has '$.alias';
 
 
-=item columns 
+=item columns
 
 =cut
 
 has '%.columns' => (
     item_accessor    => 'column',
     associated_class => 'SQL::Entity::Column',
+    index_by         => 'id',
+    the_other_end    => 'table',
+);
+
+
+=item lobs
+
+=cut
+
+has '%.lobs' => (
+    item_accessor    => 'lob',
+    associated_class => 'SQL::Entity::Column::LOB',
     index_by         => 'id',
     the_other_end    => 'table',
 );
@@ -208,7 +218,7 @@ sub from_clause {
 }
 
 
-=item from_clause
+=item from_clause_params
 
 Returns FROM operand " table1  " SQL fragment
 

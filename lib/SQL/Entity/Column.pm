@@ -138,7 +138,7 @@ sub initialise {
 }
 
 
-=item to_string
+=item as_string
 
 =cut
 

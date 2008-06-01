@@ -75,6 +75,13 @@ First operand for condition.
 sub operand1 {shift->{operand1}}
 
 
+=item set_operand1
+
+Sets the first condition operand .
+
+=cut
+
+
 sub set_operand1 {
     my ($self, $value) = @_;
     $self->{operand1} = $value;
@@ -97,6 +104,13 @@ Second operand for condition.
 =cut
 
 sub operand2 {shift->{operand2}}
+
+
+=item set_operand2
+
+Sets the secound condition operand .
+
+=cut
 
 sub set_operand2 {
     my ($self, $value) = @_;
@@ -188,7 +202,7 @@ sub sql_cond {
 }
 
 
-=item and(ARRAY $condition_list) returns SQL::Entity::Condition
+=item and
 
 Create a composite Condition object with AND relation between current object and
 passed in condition list.
@@ -208,7 +222,7 @@ sub and {
 }
 
 
-=item ord(ARRAY $condition_list) returns SQL::Entity::Condition
+=item or
 
 Create a composite Condition object with OR relation between current object an
 passed in condition list.
@@ -229,7 +243,7 @@ sub or {
 }
 
 
-=item sql_andd(ARRAY $condition_list) returns SQL::Entity::Condition
+=item sql_and
 
 Create a composite Condition object with AND relation.
 
@@ -241,7 +255,7 @@ sub sql_and {
 }
 
 
-=item sql_ord(ARRAY $condition_list) returns SQL::Entity::Condition
+=item sql_or
 
 Create a composite Condition object with OR relation.
 
@@ -253,7 +267,7 @@ sub sql_or {
 }
 
 
-=item sql_composite(ARRAY $condition_list) returns SQL::Entity::Condition
+=item sql_composite
 
 Create a composite Condition object.
 

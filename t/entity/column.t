@@ -28,3 +28,4 @@ BEGIN{
     is($column->updatable, 0, "should not be updatable");
     is($column->as_string, "(col1||col2) AS col1_col2", "should stingyfy column");
 }
+
