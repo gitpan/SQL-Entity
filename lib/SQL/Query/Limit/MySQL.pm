@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 use Abstract::Meta::Class ':all';
 use SQL::Entity::Column ':all';
@@ -94,7 +94,6 @@ TODO. Improve collision in threads,
 sub query_setup {
     my ($self, $connection) = @_;
     my $sequence_name = $self->sequence_name;
-    my $result_set = $connection->record($self->sql_defintion('find_sequence'), $sequence_name, $connection->user);
     $connection->do('SET @rownum = 1;');
 }
 

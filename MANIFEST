@@ -1,5 +1,6 @@
 Changes
 examples/entity.pl
+lib/SQL/DMLGenerator.pm
 lib/SQL/Entity.pm
 lib/SQL/Entity/Column.pm
 lib/SQL/Entity/Column/LOB.pm

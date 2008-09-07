@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw(@EXPORT_OK %EXPORT_TAGS $VERSION);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 use Abstract::Meta::Class ':all';
 use base qw(Exporter SQL::Entity::Column);
@@ -14,7 +14,7 @@ use base qw(Exporter SQL::Entity::Column);
 
 =head1 NAME
 
-SQL::Entity::Column - Entity LOBs column abstraction.
+SQL::Entity::Column::LOB - Entity LOBs column abstraction.
 
 =head1 CLASS HIERARCHY
 

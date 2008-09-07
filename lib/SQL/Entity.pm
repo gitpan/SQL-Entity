@@ -5,7 +5,7 @@ use strict;
 use vars qw(@EXPORT_OK %EXPORT_TAGS $VERSION);
 use Storable qw(dclone);
 
-$VERSION = 0.04;
+$VERSION = 0.05;
 
 use Abstract::Meta::Class ':all';
 use Carp 'confess';
@@ -28,6 +28,7 @@ use constant THE_ROWID  => 'the_rowid';
   sql_and
   sql_or
 );
+
 %EXPORT_TAGS = (all => \@EXPORT_OK);
 
 
@@ -148,6 +149,15 @@ SQL fragment.
 has '$.query_from';
 
 
+=item query_from_helper
+
+Code referebce that may transform query_from
+
+=cut
+
+has '&.query_from_helper';
+
+
 =item columns
 
 =cut
@@ -227,6 +237,36 @@ Allows use mini language variable,
 =cut
 
 has '%.sql_template_parameters' => (item_accessor => 'sql_template_parameter');
+
+
+=item dml_generator
+
+Represents class that will be used to generate DML statements.
+SQL::DMLGenerator by default.
+
+=cut
+
+{
+    my %loaded;
+    has '$.dml_generator' => (
+        default => 'SQL::DMLGenerator',
+        on_read => sub {
+            my ($self, $attribute, $scope, $value) = @_;
+            my $result = $attribute->get_value($self);
+            unless ($loaded{$result}) {
+                my $module = $result;
+                $module =~ s/::/\//g;
+                $module  .= ".pm";
+                eval {
+                    require $module;
+                    $loaded{$result} = 1;
+                }
+            }
+            $result;
+        }
+    );
+}
+
 
 =back
 
@@ -356,10 +396,8 @@ sub insert {
         my $name = $column->name;
         $field_values{$name} = $args{$name};
     }
-    my @fields = sort keys %field_values;
-    my $sql = sprintf "INSERT INTO %s (%s) VALUES (%s)",
-        $self->name, join(",", @fields), join(",", ("?")x @fields);
-    ($sql, [map {$field_values{$_}} @fields]);
+    my $dml_generator = $self->dml_generator;
+    $dml_generator->insert($self, \%field_values);
 }
 
 
@@ -387,19 +425,10 @@ sub update {
         next unless exists($fields_values->{$name});
         $field_values{$name} = $fields_values->{$name};
     }
-    my @fields = sort keys %field_values;
-    return () unless @fields;
-    my $condition = ref($conditions) eq 'SQL::Entity::Condition'
-        ? $conditions
-        : SQL::Entity::Condition->struct_to_condition($self->normalise_field_names(%$conditions));
 
-    my $bind_variables = [];
-    my $where_clause = $condition->as_string({}, $bind_variables);
-    my $sql = sprintf "UPDATE %s SET %s WHERE %s",
-        $self->name,
-        join (", ", map { $_ . ' = ?' } @fields),
-        $where_clause;
-    ($sql, [(map {$field_values{$_}} @fields), @$bind_variables]);
+    my $dml_generator = $self->dml_generator;
+    $dml_generator->update($self, \%field_values, $conditions);
+
 }
 
 
@@ -413,16 +442,8 @@ Returns deletes sql statement and bind variables
 
 sub delete {
     my ($self, @args) = @_;
-    my @columns = $self->updatable_columns;
-    my $condition = @args == 1 
-        ? $args[0]
-        : SQL::Entity::Condition->struct_to_condition($self->normalise_field_names(@args));
-    my $bind_variables = [];
-    my $where_clause = $condition->as_string({}, $bind_variables);    
-    my $sql = sprintf "DELETE FROM %s WHERE %s",
-        $self->name,
-        $where_clause;
-    ($sql, $bind_variables);
+    my $dml_generator = $self->dml_generator;
+    $dml_generator->delete($self, @args);
 }
 
 
@@ -500,6 +521,9 @@ Returns FROM .. sql fragment without join.
 sub from_sql_clause {
     my ($self, $join_methods) = @_;
     my $query_from = $self->query_from;
+    my $query_from_helper = $self->query_from_helper;
+    $query_from = $query_from_helper->($self)
+        if $query_from_helper;
     my $alias = $self->alias;
     my $name = $self->name;
     ($query_from
@@ -566,10 +590,11 @@ sub relationship_query {
 }
 
 
-
 =item normalise_field_names
 
 Replaces all keys that are passed in as alias to column name
+for instance we have the folllowing SQL: SELECT ename as name, id, loc FROM emp
+name will be replaced to ename.
 
 =cut
 

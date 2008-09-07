@@ -74,8 +74,7 @@ Lets into account the following use cases:
 =begin text
 
     SELECT
-        t.*,
-        (SELECT dname FROM dept d WHERE d.deptno = t.deptno) as dname
+        t.*
     FROM  (
         SELECT /*+ INDEX_ASC(FORCE_ORDER) */
             t.*,

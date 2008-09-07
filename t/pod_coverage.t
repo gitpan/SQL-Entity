@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::Pod::Coverage tests => 11;
+use Test::Pod::Coverage tests => 12;
 
 
 pod_coverage_ok('SQL::Entity', "should have value SQL::Entity POD file" );
@@ -15,3 +15,4 @@ pod_coverage_ok('SQL::Query', "should have value SQL::Query POD file" );
 pod_coverage_ok('SQL::Query::Limit::MySQL', "should have value SQL::Query::Limit::MySQL POD file" );
 pod_coverage_ok('SQL::Query::Limit::Oracle', "should have value SQL::Query::Limit::Oracle POD file" );
 pod_coverage_ok('SQL::Query::Limit::PostgreSQL', "should have value SQL::Query::Limit::PostgreSQL POD file" );
+pod_coverage_ok('SQL::DMLGenerator', "should have value SQL::DMLGenerator POD file");

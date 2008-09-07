@@ -309,10 +309,10 @@ sub as_string {
     $result .= " EXISTS(" if $subquery;
     
     $result .= $operand1
-      ? operand($operand1, $columns, undef, $entity, $join_methods)
+      ? operand($operand1, $columns, undef, $entity, $join_methods, $operand2)
       . ($self->operator ? " " . $self->operator . " ": "")
       . ($case_insensitive ? 'UPPER(' : '')
-      . operand($operand2, $columns, $bind_variables, $entity, $join_methods)
+      . operand($operand2, $columns, $bind_variables, $entity, $join_methods, $operand1)
       . ($case_insensitive ? ')' : '')
       : '';
     $result .= ") " if $subquery;
@@ -339,17 +339,17 @@ Return expression for passed in operand.
 =cut
 
 sub operand {
-    my ($operand, $columns, $bind_variables, $entity, $join_methods) = @_;
+    my ($operand, $columns, $bind_variables, $entity, $join_methods, $reflective_operand) = @_;
     my $result = $operand;
     return '' unless defined $operand;
     
-    if(ref($operand) eq 'SQL::Entity::Column') {
+    if (ref($operand) eq 'SQL::Entity::Column') {
         $result = $operand->as_operand;
         $entity->set_relationship_join_method($operand, 'JOIN', $join_methods);
           die "column ". $operand->as_string ." cant be queried " 
           unless $operand->queryable;
             
-    } elsif(ref($bind_variables)) {
+    } elsif (ref($bind_variables) eq 'ARRAY') {
             if (ref($operand)) {
                 push @$bind_variables, @$operand;
                 $result = "(" . (join ",", map {'?'} @$operand) . ")";
@@ -357,8 +357,16 @@ sub operand {
                 push @$bind_variables, $operand;
                 $result = '?';
             }
-        
-    } elsif(my $column = $columns->{$operand}) {
+    } elsif (ref($bind_variables) eq 'HASH') {
+        if (ref($operand)) {
+            $result = "(" . (join ",",
+                map { (':' . extend_bind_variables($bind_variables, $_, $reflective_operand)) } @$operand) . ")";
+            
+        } else {
+            $result = ':' . extend_bind_variables($bind_variables, $operand, $reflective_operand);
+        }
+            
+    } elsif (my $column = $columns->{$operand}) {
         die "column ". $column->as_string ." cant be queried " 
           unless $column->queryable;
         $entity->set_relationship_join_method($column, 'JOIN', $join_methods);
@@ -374,6 +382,26 @@ sub operand {
     }
     $result;
 }
+
+
+=item extend_bind_variables
+
+=cut
+
+sub extend_bind_variables {
+    my ($bind_variables, $value, $column, $counter) = @_;
+    my $column_name = (ref $column) ? $column->name : $column;
+    my $result = $column_name;
+    $counter ||= 0;
+    if (exists $bind_variables->{$result}) {
+        $result = $column_name . ($counter++);
+        extend_bind_variables($bind_variables, $value, $column, $counter)
+            if (exists $bind_variables->{$result});
+    }
+    $bind_variables->{$result} = $value;
+    $result;
+}
+
 
 =item struct_to_condition
 

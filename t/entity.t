@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 29;
+use Test::More tests => 30;
 use SQL::Entity::Column;
 
 BEGIN {
@@ -189,4 +189,37 @@ FROM emp", 'should have count Entity');
     eval {$entity->unique_condition_values({deptno => 1}, 1);};
     ok($@, 'should catch unique_condition_values validation error');
     
+}
+
+
+
+{
+    
+    my $dept = SQL::Entity->new(
+        name        => 'dept',
+        primary_key => ['deptno'],
+        alias       => 'd',
+        columns     => [
+            sql_column(name => 'deptno'),
+            sql_column(name => 'dname')
+        ],
+        query_from  => "
+        BEGIN
+            :sql = my_sql_package_repository.get_sql('dept');
+        
+        END:
+        ",
+        query_from_helper => sub {
+            my ($self) = @_;
+            my $query_from = $self->query_from or die;
+            #do some stuff
+            'SELECT * FROM dept'
+        }
+    );
+    my ($sql, $bind) = $dept->query;
+    is($sql, 'SELECT d.deptno AS the_rowid,
+  d.dname,
+  d.deptno
+FROM ( SELECT * FROM dept ) d', 'should have query from transformed');
+
 }
